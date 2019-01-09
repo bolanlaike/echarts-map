@@ -1,0 +1,386 @@
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <script src='lib/esl.js'></script>
+    <script src='lib/config.js'></script>
+    <script src='lib/jquery.min.js'></script>
+    <script src='lib/facePrint.js'></script>
+    <script src='http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM'></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+    <style>
+        html,
+        body,
+        #main {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        #pause-resume {
+            position: absolute;
+            left: 10;
+            top: 10;
+        }
+
+        #info {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            height: 30px;
+            line-height: 30px;
+            color: yellow;
+            font-size: 20px;
+        }
+    </style>
+    <div id="main"></div>
+    <div id="info"></div>
+    <button id="pause-resume">Pause/Resume</button>
+    <script>
+
+        require([
+            'echarts',
+            'extension/bmap'
+        ], function (echarts) {
+
+            $.get('../map/json/zhongguo-shiji.json', function (chinaJson) {
+
+                echarts.registerMap('china', chinaJson);
+                var myChart = echarts.init(document.getElementById('main'));
+                
+                /*
+                $.get('../map/json/result8.json', function (data) {
+
+                    var obj = eval(data);
+
+                    for (var i = 0; i < obj.length; i++) {
+                        var points = [];
+                        for (var j = 0; j < obj[i].Mnst.length; j++) {
+                            //这里有个坑，上面result8.json里的坐标经纬度反了，所有下面先取value[1],再取得value[0],
+                            //如果你的数据是正常的，注意修改这句代码
+                            points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
+                        }
+                        busLines.push({
+                            coords: points, // coords是必需的，这是坐标
+                            name: obj[i].name, // 类似name,或者其他需要的元素，都是可以自己加的 
+                        });
+                    };
+
+                    var series = [];
+
+                    series.push(
+                        {
+                            name: '总人口',
+                            type: 'map',
+                            geoIndex: 0,
+                            roam: true,
+                            data: []
+                        },{
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        polyline: true,
+                        data: busLines,
+                        lineStyle: {
+                            normal: {
+                                opacity: 1,
+                                width: 2,
+                                color: '#00FF00'
+
+                            }
+                        },
+                        progressiveThreshold: 500,
+                        progressive: 200
+                    }, {
+                            type: 'lines',
+                            coordinateSystem: 'geo',
+                            polyline: true,
+                            data: busLines,
+                            lineStyle: {
+                                normal: {
+                                    width: 0,
+                                }
+                            },
+                            effect: {
+                                constantSpeed: 20,
+                                show: true,
+                                trailLength: 0.1,
+                                symbolSize: 1.5
+                            },
+                            zlevel: 1
+                        }
+                    );
+*/
+                    var option = {
+                        baseOption: {
+                            backgroundColor: '#404a59',
+                            animation: false,
+                            title: {
+                                text: '高铁网络',
+                                left: 'center',
+                                textStyle: {
+                                    color: '#fff'
+                                }
+                            },
+                            timeline: {
+                                bottom: '6%',
+                                autoPlay: true,
+                                data: ['2002-01-01', '2003-01-01', '2004-01-01']
+                            },
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params, ticket, callback) {
+                                    if (params.seriesType == "lines")
+                                        return params.data.name;
+                                    else if (params.seriesType == "map")
+                                        return params.data.name + ':' + params.data.value
+                                }
+                            },
+                            visualMap: {
+                                show: true,
+                                type: 'piecewise',
+                                pieces: [
+                                    { min: 10000 }, // 不指定 max，表示 max 为无限大（Infinity）。
+                                    { min: 8000, max: 10000 },
+                                    { min: 6000, max: 8000, },
+                                    { min: 4000, max: 6000 },
+                                    { min: 2000, max: 4000 },
+                                    { min: 100, max: 2000 },
+                                    { max: 100 }// 不指定 min，表示 min 为无限大（-Infinity）。
+                                ],
+                                showLabel: true,
+                                left: 'right',
+                                top: 'bottom',
+                                text: ['高    (元/平方公里)', '低    (元/平方公里)'], // 文本，默认为数值文本
+                                calculable: true,
+                                inRange: {
+                                    color: ['#3C3B3F', 'red']//蓝红
+                                }
+                            },
+                            bmap: {
+                                center: [116.46, 39.92],
+                                zoom: 10,
+                                roam: false,
+                                mapStyle: {
+                                    'styleJson': [{
+                                        'featureType': 'highway',
+                                        'elementType': 'all',
+                                        'stylers': {
+                                            'visibility': 'off'
+                                        }
+                                    }]
+                                }
+                            },
+                            geo: {
+                                map: 'china',
+                                label: {
+                                    normal: {
+                                        show: false,
+                                        backgroundColor: '#fff',
+                                        padding: [3, 5],
+                                        borderRadius: 3,
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(0,0,0,0.5)',
+                                        color: '#777'
+                                    },
+                                    emphasis: {
+                                        areaColor: '#2a333d'
+                                    }
+                                },
+
+                                selectedMode: 'single',
+                                roam: true,
+                                itemStyle: {
+                                    normal: {
+                                        areaColor: '#323c48',
+                                        borderColor: '#404a59'
+                                    },
+                                    emphasis: {
+                                        areaColor: '#2a333d'
+                                    }
+                                }
+                            },
+                           // series: series
+                        },
+                        options: [
+                            { //option 1 对应timeline.data中第一项2002年
+                                title: {
+                                    text: '2008年统计值'
+                                },
+                                series: [{
+                                        type: 'map',
+                                        geoIndex:0,
+                                        roam:true,
+                                        data: [],
+                                    },{
+                                        type: 'lines',
+                                        coordinateSystem: 'geo',
+                                        polyline: true,
+                                        data: [],
+                                        lineStyle: {
+                                            normal: {
+                                                opacity: 1,
+                                                width: 2,
+                                                color:'#DDDDDD'
+                                            }
+                                        },
+                                        progressiveThreshold: 500,
+                                        progressive: 200,
+                                    }, {
+                                        type: 'lines',
+                                        coordinateSystem: 'geo',
+                                        polyline: true,
+                                        data: [],
+                                        lineStyle: {
+                                            normal: {
+                                                width: 0,
+                                 //               color:'#FF0000'
+                                            }
+                                        },
+                                        effect: {
+                                            constantSpeed: 20,
+                                            show: true,
+                                            trailLength: 0.1,
+                                            symbolSize: 1.5
+                                        },
+                                        zlevel: 1
+                                    }]
+                            },
+                            {//option 2 对应timeline.data 中第二项2003年
+                                title: {
+                                    text: '2010年统计值'
+                                },
+                                series: [{
+                                        type: 'map',
+                                        geoIndex:0,
+                                        roam:true,
+                                        data: [],
+                                    }, {
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: [],
+                                    lineStyle: {
+                                        normal: {
+                                            opacity: 1,
+                                            width: 2,
+                                            color:'#DDDDDD'
+                                        }
+                                    },
+                                    progressiveThreshold: 500,
+                                    progressive: 200
+                                }, {
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: [],
+                                    lineStyle: {
+                                        normal: {
+                                            width: 0,
+                                //            color:'#FF0000'
+                                        }
+                                    },
+                                    effect: {
+                                        constantSpeed: 20,
+                                        show: true,
+                                        trailLength: 0.1,
+                                        symbolSize: 1.5
+                                    },
+                                    zlevel: 1
+                                }]},
+                                {// option 3 对应timeline.data中第三项 2004年
+                                    title: {
+                                        text: '2012年统计值'
+                                    },
+                                    series:[{
+                                        type: 'map',
+                                        geoIndex:0,
+                                        roam:true,
+                                        data: [],
+                                    },{
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: [],
+                                    lineStyle: {
+                                        normal: {
+                                            opacity: 1,
+                                            width: 2,
+                                            color:'#DDDDDD'
+                                        }
+                                    },
+                                    progressiveThreshold: 500,
+                                    progressive: 200
+                                }, {
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: [],
+                                    lineStyle: {
+                                        normal: {
+                                            width: 0,
+                                  //          color:'#FF0000'
+                                        }
+                                    },
+                                    effect: {
+                                        constantSpeed: 20,
+                                        show: true,
+                                        trailLength: 0.1,
+                                        symbolSize: 1.5
+                                    },
+                                    zlevel: 1
+                                }]}]
+                    };
+
+
+            var heatmapdata =[];
+            function getTimeLinePointOptionData(pointIndex) {
+              //  option.options[pointIndex].title.text = 2002 + pointIndex + '乘坐高铁人数';
+                var heatmapurl = '../map/json/heatmap/heatmap'+pointIndex+'.json';
+                   
+                $.getJSON(heatmapurl,function(hmdata) { 
+                        heatmapdata = eval(hmdata);
+                        option.options[pointIndex].series[0].data = heatmapdata;
+                        var hsrailurl ='../map/json/hsrail/hsrail'+pointIndex+'.json';
+                        $.getJSON(hsrailurl,function(hsrdata){
+                            var busLines = [];
+                            var obj = eval(hsrdata);
+                            for (var i = 0; i < obj.length; i++) {
+                                var points = [];
+                                for (var j = 0; j < obj[i].Mnst.length; j++) {
+                                    //这里有个坑，上面result8.json里的坐标经纬度反了，所有下面先取value[1],再取得value[0],
+                                    //如果你的数据是正常的，注意修改这句代码
+                                    points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
+                                }
+                                busLines.push({
+                                    coords: points, // coords是必需的，这是坐标
+                                    name: obj[i].name, // 类似name,或者其他需要的元素，都是可以自己加的 
+                                });
+                            };
+
+
+                            option.options[pointIndex].series[1].data = busLines;
+                            option.options[pointIndex].series[2].data = busLines;
+                            //  好像只能把setoption放在这里了，在外面option里数据没生效
+                            myChart.setOption(option); 
+                        })
+                })
+            }
+        
+            getTimeLinePointOptionData(0); // 初始化 第一个timelinepoint不会触发timelinechanged，所以手动触发
+            
+              // 时间轴timepoint改变则触发该函数
+              myChart.on('timelinechanged', function (timeLineIndex) {
+                getTimeLinePointOptionData(timeLineIndex.currentIndex);
+              
+            });
+    
+                });
+            });
+
+    </script>
+</body>
+
+</html>

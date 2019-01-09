@@ -1,0 +1,349 @@
+<html>
+<head>
+    <meta charset='utf-8'>
+    <script src='lib/esl.js'></script>
+    <script src='lib/config.js'></script>
+    <script src='lib/jquery.min.js'></script>
+    <script src='lib/facePrint.js'></script>
+    <script src='http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM'></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <style>
+        html,
+        body,
+        #main {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        #pause-resume {
+            position: absolute;
+            left: 10;
+            top: 10;
+        }
+
+        #info {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            height: 30px;
+            line-height: 30px;
+            color: yellow;
+            font-size: 20px;
+        }
+    </style>
+    <div id="main"></div>
+    <div id="info"></div>
+    <button id="pause-resume">Pause/Resume</button>
+    <script>
+        require([
+            'echarts',
+            'extension/bmap'
+        ], function (echarts) {
+
+            $.get('../map/json/china.json', function (chinaJson) {
+
+                echarts.registerMap('china', chinaJson);
+
+                var myChart = echarts.init(document.getElementById('main'));
+
+                $.get('../map/json/result8.json', function (data) {
+                    var hStep = 300 / (data.length - 1);
+                    var obj = eval(data);
+                    var busLines = [];
+                    for (var i = 0; i < obj.length; i++) {
+                        var points = [];
+                        for (var j = 0; j < obj[i].Mnst.length; j++) {
+                            points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
+                        }
+                        busLines.push({
+                            coords: points,
+                            name: obj[i].name,
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: '{b}'
+                            },
+                            lineStyle: {
+                                normal: {
+                                    color: echarts.color.modifyHSL('#5A94DF', Math.round(hStep * i))
+                                }
+                            },
+                        });
+                    };
+                    console.log(busLines)
+                    var series = [];
+                    series.push(
+                        {
+                            type: 'lines',
+                            coordinateSystem: 'geo',
+                            polyline: true,
+                            data: busLines,
+                            lineStyle: {
+                                normal: {
+                                    opacity: 1,
+                                    width: 2
+                                }
+                            },
+                            progressiveThreshold: 500,
+                            progressive: 200
+                        }, {
+                            type: 'lines',
+                            coordinateSystem: 'geo',
+                            polyline: true,
+                            data: busLines,
+                            lineStyle: {
+                                normal: {
+                                    width: 0
+                                }
+                            },
+                            effect: {
+                                constantSpeed: 20,
+                                show: true,
+                                trailLength: 0.1,
+                                symbolSize: 1.5
+                            },
+                            zlevel: 3
+                        });
+
+                    myChart.setOption({
+                        baseOption: {
+                            backgroundColor: '#404a59',
+                            visualMap: {
+                                min: 2000,
+                                max: 10000,
+                                splitNumber: 100,
+                                show:false,
+                                inRange: {
+                                    color: ['#d94e5d', '#eac736', '#50a3ba'].reverse()
+                                },
+                                textStyle: {
+                                    color: '#fff'
+                                }
+                            },
+                            animation: true,
+                            title: {
+                                text: '高铁网络',
+                                subtext: 'data from ',
+                                sublink: '',
+                                left: 'center',
+                                textStyle: {
+                                    color: '#fff'
+                                }
+                            },
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: '{a}{b}{c}'
+                            },
+                            timeline: {
+                                bottom: '6%',
+                                autoPlay: true,
+                                data: ['2002-01-01', '2003-01-01', '2004-01-01']
+                            },
+                            bmap: {
+                                center: [116.46, 39.92],
+                                zoom: 10,
+                                roam: false,
+                                
+                                mapStyle: {
+                                    'styleJson': [
+                                        {
+                                            'featureType': 'highway',
+                                            'elementType': 'all',
+                                            'stylers': {
+                                                'visibility': 'off'
+                                            }
+                                        },
+                                    ]
+                                }
+                            },
+                            geo: {
+                                map: 'china',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        formatter: '{b}',
+                                        // position: 'inside',
+                                        backgroundColor: '#fff',
+                                        padding: [3, 5],
+                                        borderRadius: 3,
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(0,0,0,0.5)',
+                                        color: '#777'
+                                    },
+                                    emphasis: {
+                                        areaColor: '#2a333d'
+                                    }
+                                },
+                                selectedMode: 'single',
+                                roam: true,
+                                itemStyle: {
+                                    normal: {
+                                        areaColor: '#323c48',
+                                        borderColor: '#404a59'
+                                    },
+                                    emphasis: {
+                                        areaColor: '#2a333d'
+                                    }
+                                }
+                            },
+                        //    series: series
+                        },
+                        options: [
+                            { //option 1 对应timeline.data中第一项2002年
+                                title: {
+                                    text: '2002年统计值'
+                                },
+                                series: [
+                                    {
+                                        type: 'heatmap',
+                                        coordinateSystem: 'geo',
+                                        data: [[116.46, 39.92, 6000]],
+                                    },
+                                    {
+                                        type: 'lines',
+                                        coordinateSystem: 'geo',
+                                        polyline: true,
+                                        data: busLines,
+                                        lineStyle: {
+                                            normal: {
+                                                opacity: 1,
+                                                width: 2,
+                                                color:'#DDDDDD'
+                                            }
+                                        },
+                                        progressiveThreshold: 500,
+                                        progressive: 200,
+                                        zlevel: 10
+                                    }, {
+                                        type: 'lines',
+                                        coordinateSystem: 'geo',
+                                        polyline: true,
+                                        data: busLines,
+                                        lineStyle: {
+                                            normal: {
+                                                width: 0,
+                                 //               color:'#FF0000'
+                                            }
+                                        },
+                                        effect: {
+                                            constantSpeed: 20,
+                                            show: true,
+                                            trailLength: 0.1,
+                                            symbolSize: 1.5
+                                        },
+                                        zlevel: 999
+                                    }]
+                            },
+                            {//option 2 对应timeline.data 中第二项2003年
+                                title: {
+                                    text: '2003年统计值'
+                                },
+                                series: [{
+                                    type: 'heatmap',
+                                    coordinateSystem: 'geo',
+                                    data: [[116.46, 39.92, 8000]],
+                                }, {
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: busLines,
+                                    lineStyle: {
+                                        normal: {
+                                            opacity: 1,
+                                            width: 2,
+                                            color:'#DDDDDD'
+                                        }
+                                    },
+                                    progressiveThreshold: 500,
+                                    progressive: 200,
+                                    zlevel: 10
+                                }, {
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: busLines,
+                                    lineStyle: {
+                                        normal: {
+                                            width: 0,
+                                //            color:'#FF0000'
+                                        }
+                                    },
+                                    effect: {
+                                        constantSpeed: 20,
+                                        show: true,
+                                        trailLength: 0.1,
+                                        symbolSize: 1.5
+                                    },
+                                    zlevel: 999
+                                }]},
+                                {// option 3 对应timeline.data中第三项 2004年
+                                    title: {
+                                        text: '2004年统计值'
+                                    },
+                                    series:[ {
+                                        type: 'heatmap',
+                                        coordinateSystem: 'geo',
+                                        data: [[116.46, 39.92, 10000]],
+                                    },{
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: busLines,
+                                    lineStyle: {
+                                        normal: {
+                                            opacity: 1,
+                                            width: 2,
+                                            color:'#DDDDDD'
+                                        }
+                                    },
+                                    progressiveThreshold: 500,
+                                    progressive: 200,
+                                    zlevel: 10
+                                }, {
+                                    type: 'lines',
+                                    coordinateSystem: 'geo',
+                                    polyline: true,
+                                    data: busLines,
+                                    lineStyle: {
+                                        normal: {
+                                            width: 0,
+                                  //          color:'#FF0000'
+                                        }
+                                    },
+                                    effect: {
+                                        constantSpeed: 20,
+                                        show: true,
+                                        trailLength: 0.1,
+                                        symbolSize: 1.5
+                                    },
+                                    zlevel: 999
+                                }
+                                    ]
+                                }
+                                ]
+                            });
+
+                    myChart.on('geoselectchanged', function (param) {
+                        var selected = [];
+                        echarts.util.each(param.selected, function (v, key) {
+                            v && selected.push(key);
+                        });
+                        document.getElementById('info').innerHTML = 'SELECTED: ' + selected.join(', ');
+                    });
+
+                    var isPaused = false;
+                    document.getElementById('pause-resume').onclick = function () {
+                        myChart.getZr().animation[isPaused ? 'resume' : 'pause']();
+                        isPaused = !isPaused;
+                    };
+                },
+                );
+            })
+        });
+
+    </script>
+</body>
+
+</html>

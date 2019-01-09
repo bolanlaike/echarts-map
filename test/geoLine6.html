@@ -1,0 +1,249 @@
+
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <script src='lib/esl.js'></script>
+        <script src='lib/config.js'></script>
+        <script src='lib/jquery.min.js'></script>
+        <script src='lib/facePrint.js'></script>
+        <script src='http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM'></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    </head>
+    <body>
+        <style>
+            html, body, #main {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+            }
+            #pause-resume {
+                position: absolute;
+                left: 10;
+                top: 10;
+            }
+            #info {
+                position: fixed;
+                left: 0;
+                bottom: 0;
+                height: 30px;
+                line-height: 30px;
+                color: yellow;
+                font-size: 20px;
+            }
+        </style>
+        <div id="main"></div>
+        <div id="info"></div>
+        <button id="pause-resume">Pause/Resume</button>
+        <script>
+
+            require([
+                'echarts',
+
+                // 'echarts/chart/lines',
+                // 'echarts/chart/effectScatter',
+                // 'echarts/component/legend',
+                // 'echarts/component/geo'
+                'extension/bmap'
+            ], function (echarts) {
+
+                
+                $.get('../map/json/china.json', function (chinaJson) {
+               
+                    echarts.registerMap('china', chinaJson);
+
+                    var myChart = echarts.init(document.getElementById('main'));
+
+                    $.get('../map/json/result8.json', function (data) {
+                    var hStep = 300 / (data.length - 1);
+                    var obj = eval(data);
+              /*      var busLines = obj.map(function (busLine, idx) {
+                        var points = [];
+                        for (var i = 0; i < busLine.length; i++) {
+                            points.push([busLine[i][0],busLine[i][1]]);
+                        }*/
+
+                        var busLines=[];
+                       for(var i=0;i<obj.length;i++){
+                        var points = [];
+                            for(var j=0;j<obj[i].Mnst.length;j++){
+                                points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
+                            }
+                        busLines.push({
+                            coords: points,
+                            name:obj[i].name,
+                            lineStyle: {
+                                normal: {
+                                    color: echarts.color.modifyHSL('#5A94DF', Math.round(hStep * i))
+                                }
+                            }
+                        });
+                    };
+                console.log(busLines);
+                    var series = [];
+                        series.push(
+                            {
+                            type: 'lines',
+                            coordinateSystem: 'geo',
+                            polyline: true,
+                            data: busLines,
+                            lineStyle: {
+                                normal: {
+                                    // color: '#c23531',
+                                    // color: 'rgb(200, 35, 45)',
+                                    opacity: 1,
+                                    width: 2
+                                }
+                            },
+                            progressiveThreshold: 500,
+                            progressive: 200
+                        }, {
+                            type: 'lines',
+                            coordinateSystem: 'geo',
+                            polyline: true,
+                            data: busLines,
+                            lineStyle: {
+                                normal: {
+                                    width: 0
+                                }
+                            },
+                            effect: {
+                                constantSpeed: 20,
+                                show: true,
+                                trailLength: 0.1,
+                                symbolSize: 1.5
+                            },
+                            zlevel: 1
+                        });
+                    
+                    myChart.setOption({
+                        backgroundColor: '#404a59',
+                        animation: false,
+                        title: {
+                            text: '高铁网络',
+                            subtext: 'data from ',
+                            sublink: '',
+                            left: 'center',
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        tooltip : {
+                            trigger: 'item',
+                            formatter:function(params, ticket, callback){
+                               if(params.seriesType=="lines")
+                                    return params.data.name;
+                            }
+                        },
+                        bmap: {
+                            center: [116.46, 39.92],
+                            zoom: 10,
+                            roam: true,
+                            selectedMode: 'single',
+                            itemStyle: {
+                                normal: {
+                                    areaColor: '#323c48',
+                                    borderColor: '#404a59'
+                                },
+                                emphasis: {
+                                    areaColor: '#2a333d'
+                                }
+                            },
+                            mapStyle: {
+                              'styleJson': [
+                                {
+                                  'featureType': 'highway',
+                                  'elementType': 'all',
+                                  'stylers': {
+                                    'visibility': 'off'
+                                  }
+                                },
+                                {
+                                  'featureType': 'railway',
+                                  'elementType': 'geometry.stroke',
+                                  'stylers': {
+                                    'color': '#08304b'
+                                  }
+                                },
+                                {
+                                  'featureType': 'all',
+                                  'elementType': 'labels.text.fill',
+                                  'stylers': {
+                                    'color': '#857f7f'
+                                  }
+                                },
+                              ]
+                            }
+                        },
+                        geo: {
+                            map: 'china',
+                            label: {
+                                normal: {
+                                    show: true,
+                                    formatter: '{a}',
+                                    // position: 'inside',
+                                    backgroundColor: '#fff',
+                                    padding: [3, 5],
+                                    borderRadius: 3,
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(0,0,0,0.5)',
+                                    color: '#777'
+                                },
+                                emphasis: {
+                                    areaColor: '#2a333d'
+                                }
+                            },
+                            selectedMode: 'single',
+                            roam: true,
+                            itemStyle: {
+                                normal: {
+                                    areaColor: '#323c48',
+                                    borderColor: '#404a59'
+                                },
+                                emphasis: {
+                                    areaColor: '#2a333d'
+                                }
+                            }
+                        },
+                        series: series
+                    });
+
+                    myChart.on('geoselectchanged', function (param) {
+                        var selected = [];
+                        echarts.util.each(param.selected, function (v, key) {
+                            v && selected.push(key);
+                        });
+                        document.getElementById('info').innerHTML = 'SELECTED: ' + selected.join(', ');
+                    });
+
+                    var isPaused = false;
+                    document.getElementById('pause-resume').onclick = function () {
+                        myChart.getZr().animation[isPaused ? 'resume' : 'pause']();
+                        isPaused = !isPaused;
+                    };
+                },
+                );
+            })
+                });
+             
+        </script>
+    </body>
+</html>
