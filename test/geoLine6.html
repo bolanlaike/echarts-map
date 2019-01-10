@@ -57,58 +57,47 @@ under the License.
 
             require([
                 'echarts',
-
-                // 'echarts/chart/lines',
-                // 'echarts/chart/effectScatter',
-                // 'echarts/component/legend',
-                // 'echarts/component/geo'
-                'extension/bmap'
             ], function (echarts) {
 
-                
+                // 这里有一个get请求来获取json数据，所以需要开一个http服务
                 $.get('../map/json/china.json', function (chinaJson) {
                
                     echarts.registerMap('china', chinaJson);
-
                     var myChart = echarts.init(document.getElementById('main'));
-
-                    $.get('../map/json/result8.json', function (data) {
+                    $.get('../map/json/result8.json', function (data) { // 这里是获取连线的数据
                     var hStep = 300 / (data.length - 1);
-                    var obj = eval(data);
-              /*      var busLines = obj.map(function (busLine, idx) {
-                        var points = [];
-                        for (var i = 0; i < busLine.length; i++) {
-                            points.push([busLine[i][0],busLine[i][1]]);
-                        }*/
-
-                        var busLines=[];
+                    var obj = eval(data);// 解析json数据
+                    var busLines=[];
                        for(var i=0;i<obj.length;i++){
                         var points = [];
                             for(var j=0;j<obj[i].Mnst.length;j++){
+                                // 这里有一个坑我必须说明一下 我的数据result8.json里经纬度反了，所以这里取值的时候先取的value[1],再取的value[0]
                                 points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
                             }
+                            // 这里在组装连线的数据，下面将用到
                         busLines.push({
-                            coords: points,
-                            name:obj[i].name,
-                            lineStyle: {
+                            coords: points,// 坐标这个数据是必须给的
+                            name:obj[i].name,// 类似name还可以根据自己的需求给更多的数据
+                            lineStyle: { //给每条线都不同的样式
                                 normal: {
                                     color: echarts.color.modifyHSL('#5A94DF', Math.round(hStep * i))
                                 }
                             }
                         });
                     };
-                console.log(busLines);
+                console.log(busLines); // 打开浏览器控制台可以看到的输出的buslines，用于测试
+                    
                     var series = [];
+                    // 这里的series也是echarts绘图很关键的一部分，下面将用到
+                    // series是一个数组，你要画几种图series就有几个元素
                         series.push(
-                            {
+                            {// 这个就是普通连线
                             type: 'lines',
-                            coordinateSystem: 'geo',
-                            polyline: true,
-                            data: busLines,
+                            coordinateSystem: 'geo',// 这句的意思是连线是基于地理坐标的,geo组件将在下面给出
+                            polyline: true,// 这表示连线是否为多端点的连线
+                            data: busLines,// 这里就是连线的数据了 上面组装的数据就在这里使用
                             lineStyle: {
                                 normal: {
-                                    // color: '#c23531',
-                                    // color: 'rgb(200, 35, 45)',
                                     opacity: 1,
                                     width: 2
                                 }
@@ -116,7 +105,7 @@ under the License.
                             progressiveThreshold: 500,
                             progressive: 200
                         }, {
-                            type: 'lines',
+                            type: 'lines',// 这里还有一个连线其实是做的在线上的一个流动效果，运行代码注意观察你就会看到
                             coordinateSystem: 'geo',
                             polyline: true,
                             data: busLines,
@@ -133,9 +122,9 @@ under the License.
                             },
                             zlevel: 1
                         });
-                    
+                    // setoption就是这里面最主要的东西了，上面的准备都是为了这里
                     myChart.setOption({
-                        backgroundColor: '#404a59',
+                        backgroundColor: '#404a59',// 这些设置去官网看手册就知道了
                         animation: false,
                         title: {
                             text: '高铁网络',
@@ -153,47 +142,7 @@ under the License.
                                     return params.data.name;
                             }
                         },
-                        bmap: {
-                            center: [116.46, 39.92],
-                            zoom: 10,
-                            roam: true,
-                            selectedMode: 'single',
-                            itemStyle: {
-                                normal: {
-                                    areaColor: '#323c48',
-                                    borderColor: '#404a59'
-                                },
-                                emphasis: {
-                                    areaColor: '#2a333d'
-                                }
-                            },
-                            mapStyle: {
-                              'styleJson': [
-                                {
-                                  'featureType': 'highway',
-                                  'elementType': 'all',
-                                  'stylers': {
-                                    'visibility': 'off'
-                                  }
-                                },
-                                {
-                                  'featureType': 'railway',
-                                  'elementType': 'geometry.stroke',
-                                  'stylers': {
-                                    'color': '#08304b'
-                                  }
-                                },
-                                {
-                                  'featureType': 'all',
-                                  'elementType': 'labels.text.fill',
-                                  'stylers': {
-                                    'color': '#857f7f'
-                                  }
-                                },
-                              ]
-                            }
-                        },
-                        geo: {
+                        geo: {  // geo组件
                             map: 'china',
                             label: {
                                 normal: {
@@ -223,7 +172,7 @@ under the License.
                                 }
                             }
                         },
-                        series: series
+                        series: series// 上面的组装的series在这里使用
                     });
 
                     myChart.on('geoselectchanged', function (param) {

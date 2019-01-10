@@ -6,7 +6,6 @@
     <script src='lib/config.js'></script>
     <script src='lib/jquery.min.js'></script>
     <script src='lib/facePrint.js'></script>
-    <script src='http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM'></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 
@@ -43,76 +42,14 @@
 
         require([
             'echarts',
-            'extension/bmap'
+         
         ], function (echarts) {
 
             $.get('../map/json/zhongguo-shiji.json', function (chinaJson) {
 
                 echarts.registerMap('china', chinaJson);
                 var myChart = echarts.init(document.getElementById('main'));
-                
-                /*
-                $.get('../map/json/result8.json', function (data) {
-
-                    var obj = eval(data);
-
-                    for (var i = 0; i < obj.length; i++) {
-                        var points = [];
-                        for (var j = 0; j < obj[i].Mnst.length; j++) {
-                            //这里有个坑，上面result8.json里的坐标经纬度反了，所有下面先取value[1],再取得value[0],
-                            //如果你的数据是正常的，注意修改这句代码
-                            points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
-                        }
-                        busLines.push({
-                            coords: points, // coords是必需的，这是坐标
-                            name: obj[i].name, // 类似name,或者其他需要的元素，都是可以自己加的 
-                        });
-                    };
-
-                    var series = [];
-
-                    series.push(
-                        {
-                            name: '总人口',
-                            type: 'map',
-                            geoIndex: 0,
-                            roam: true,
-                            data: []
-                        },{
-                        type: 'lines',
-                        coordinateSystem: 'geo',
-                        polyline: true,
-                        data: busLines,
-                        lineStyle: {
-                            normal: {
-                                opacity: 1,
-                                width: 2,
-                                color: '#00FF00'
-
-                            }
-                        },
-                        progressiveThreshold: 500,
-                        progressive: 200
-                    }, {
-                            type: 'lines',
-                            coordinateSystem: 'geo',
-                            polyline: true,
-                            data: busLines,
-                            lineStyle: {
-                                normal: {
-                                    width: 0,
-                                }
-                            },
-                            effect: {
-                                constantSpeed: 20,
-                                show: true,
-                                trailLength: 0.1,
-                                symbolSize: 1.5
-                            },
-                            zlevel: 1
-                        }
-                    );
-*/
+            
                     var option = {
                         baseOption: {
                             backgroundColor: '#404a59',

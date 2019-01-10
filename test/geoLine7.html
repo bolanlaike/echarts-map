@@ -5,7 +5,6 @@
     <script src='lib/config.js'></script>
     <script src='lib/jquery.min.js'></script>
     <script src='lib/facePrint.js'></script>
-    <script src='http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM'></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
@@ -39,8 +38,7 @@
     <button id="pause-resume">Pause/Resume</button>
     <script>
         require([
-            'echarts',
-            'extension/bmap'
+            'echarts'
         ], function (echarts) {
 
             $.get('../map/json/china.json', function (chinaJson) {
@@ -74,40 +72,7 @@
                         });
                     };
                     console.log(busLines)
-                    var series = [];
-                    series.push(
-                        {
-                            type: 'lines',
-                            coordinateSystem: 'geo',
-                            polyline: true,
-                            data: busLines,
-                            lineStyle: {
-                                normal: {
-                                    opacity: 1,
-                                    width: 2
-                                }
-                            },
-                            progressiveThreshold: 500,
-                            progressive: 200
-                        }, {
-                            type: 'lines',
-                            coordinateSystem: 'geo',
-                            polyline: true,
-                            data: busLines,
-                            lineStyle: {
-                                normal: {
-                                    width: 0
-                                }
-                            },
-                            effect: {
-                                constantSpeed: 20,
-                                show: true,
-                                trailLength: 0.1,
-                                symbolSize: 1.5
-                            },
-                            zlevel: 3
-                        });
-
+                   
                     myChart.setOption({
                         baseOption: {
                             backgroundColor: '#404a59',
@@ -141,23 +106,6 @@
                                 bottom: '6%',
                                 autoPlay: true,
                                 data: ['2002-01-01', '2003-01-01', '2004-01-01']
-                            },
-                            bmap: {
-                                center: [116.46, 39.92],
-                                zoom: 10,
-                                roam: false,
-                                
-                                mapStyle: {
-                                    'styleJson': [
-                                        {
-                                            'featureType': 'highway',
-                                            'elementType': 'all',
-                                            'stylers': {
-                                                'visibility': 'off'
-                                            }
-                                        },
-                                    ]
-                                }
                             },
                             geo: {
                                 map: 'china',
