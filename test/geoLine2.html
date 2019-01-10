@@ -25,7 +25,7 @@ under the License.
         <script src='lib/config.js'></script>
         <script src='lib/jquery.min.js'></script>
         <script src='lib/facePrint.js'></script>
-        <script src='http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM'></script>
+      
         <meta name="viewport" content="width=device-width, initial-scale=1" />
     </head>
     <body>
@@ -56,13 +56,7 @@ under the License.
         <script>
 
             require([
-                'echarts',
-
-                // 'echarts/chart/lines',
-                // 'echarts/chart/effectScatter',
-                // 'echarts/component/legend',
-                // 'echarts/component/geo'
-                'extension/bmap'
+                'echarts'
             ], function (echarts) {
 
                 var geoCoordMap = {
@@ -244,7 +238,7 @@ under the License.
                             {    // 连线
                             name: item[0] + ' Top101',
                             type: 'lines',
-                   //         polyline:true,
+                   //         polyline:true, 
                             zlevel: 2,
                             effect: {
                                 show: false,
@@ -367,47 +361,6 @@ under the License.
                                 color: '#fff'
                             },
                             selectedMode: 'single'
-                        },
-                        bmap: {
-                            center: [116.46, 39.92],
-                            zoom: 10,
-                            roam: true,
-                            selectedMode: 'single',
-            
-                            itemStyle: {
-                                normal: {
-                                    areaColor: '#323c48',
-                                    borderColor: '#404a59'
-                                },
-                                emphasis: {
-                                    areaColor: '#2a333d'
-                                }
-                            },
-                            mapStyle: {
-                              'styleJson': [
-                                {
-                                  'featureType': 'highway',
-                                  'elementType': 'all',
-                                  'stylers': {
-                                    'visibility': 'off'
-                                  }
-                                },
-                                {
-                                  'featureType': 'railway',
-                                  'elementType': 'geometry.stroke',
-                                  'stylers': {
-                                    'color': '#08304b'
-                                  }
-                                },
-                                {
-                                  'featureType': 'all',
-                                  'elementType': 'labels.text.fill',
-                                  'stylers': {
-                                    'color': '#857f7f'
-                                  }
-                                },
-                              ]
-                            }
                         },
                         geo: {
                             map: 'china',
