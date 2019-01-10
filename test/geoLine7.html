@@ -56,6 +56,7 @@
                     for (var i = 0; i < obj.length; i++) {
                         var points = [];
                         for (var j = 0; j < obj[i].Mnst.length; j++) {
+                            // 这里有一个坑我必须说明一下 我的数据result8.json里经纬度反了，所以这里取值的时候先取的value[1],再取的value[0]
                             points.push([obj[i].Mnst[j].value[1], obj[i].Mnst[j].value[0]]);
                         }
                         busLines.push({
