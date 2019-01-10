@@ -273,6 +273,8 @@
 
 
             var heatmapdata =[];
+
+            // 下面这个异步加载写得不太好 如果有更好的写法可以给我提交issue或者pull requests
             function getTimeLinePointOptionData(pointIndex) {
               //  option.options[pointIndex].title.text = 2002 + pointIndex + '乘坐高铁人数';
                 var heatmapurl = '../map/json/heatmap/heatmap'+pointIndex+'.json';
