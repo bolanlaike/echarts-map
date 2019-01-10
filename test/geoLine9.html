@@ -45,7 +45,7 @@
             'echarts',
             'extension/bmap'
         ], function (echarts) {
-            var uploadedDataURL = "../map/json/china.json";
+            var uploadedDataURL = "../map/json/zhongguo-shiji.json";
             cityname = [];
             $.get(uploadedDataURL, function (geoJson) {
                 echarts.registerMap('china', geoJson);
