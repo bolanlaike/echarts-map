@@ -9,7 +9,5 @@ echarts 绘制地图 连线 时间轴 热力图等
 
 ![heatmap1](https://github.com/bolanlaike/echarts-map/blob/master/heatmap1.bmp)
 
-heatmap2里写了一个异步加载，感觉写得不太好，如果有更好的写法的话可以给我提交issue或者pull requests
+heatmap2里写了一个异步加载，感觉写得不太好，如果有更好的写法的话可以给我提交issue或者pr
 ![heatmap2](https://github.com/bolanlaike/echarts-map/blob/master/heatmap2.bmp)
-
-share
